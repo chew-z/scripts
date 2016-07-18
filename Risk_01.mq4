@@ -22,41 +22,20 @@ void OnDeinit(const int reason)  {
 void OnStart() {
   int bars_count=5;
   int iDay = 1;
-  double H, L, ATR, R;
+  double ATR, R, Risk, RiskPLN;
   string S = "";
   for(int i=bars_count-1; i>=0; i--) {
         H = High[i]; L = Low[i];
         ATR = f_TrueATR(3, i)*dbl2pips; R = (H-L)*dbl2pips;
+        Risk = (H - L) * dbl2pips;
+        if (IsTesting())
+            RiskPLN = Risk; // During testing MarketInfo( "PAIR", MODE_ASK) is always 0;
+         else
+            RiskPLN = Risk * pipsValuePLN(Symbol());
+         Print( Symbol(), ", Risk =  ", Risk, ", RiskPLN = ", RiskPLN );
         //S1 = StringSubstr( Symbol(), 0, 3 ); S2 = StringSubstr( Symbol(), 3, 3 );
         Print(Symbol(), " ", ATR, " ",Low[i], " ",High[i], " ", R, " ", pipsValue(Symbol()), " ", pipsValuePLN(Symbol()));
         Print(Symbol(), " ", ATR*pipsValue(Symbol()), " ", ATR*pipsValuePLN(Symbol()), " ",R*pipsValue(Symbol()), " ", R*pipsValuePLN(Symbol()));
      }
   return;
-}
-
-double pipsValue(string S) {
-// returns dollar value of one pips (for FX) or one integral (point, dollar) (for CFD)
-// requires some improvements
-    string S1 = StringSubstr( S, 0, 3 );
-    string S2 = StringSubstr( S, 3, 3 );
-    if (S == "JPN225")
-        return ( 1000.00/MarketInfo("USDJPY",MODE_ASK) );
-    if (S == "US500")
-        return ( 50.0 );
-    if (S == "WTI")
-        return ( 1000.00 );
-    if (S == "COPPER")
-        return ( 200.00 );
-    if ( S2 == "USD")
-        return ( 10.0 );
-    if ( S2 == "JPY" )
-        return ( 1000.00/MarketInfo("USDJPY",MODE_ASK) );
-    if ( S2 == "CAD")
-        return ( 10.0/MarketInfo( "USDCAD", MODE_ASK) );
-
-    return (0.0);
-}
-
-double pipsValuePLN(string symbol) {
-        return (pipsValue(symbol) * MarketInfo( "USDPLN", MODE_ASK));
 }
